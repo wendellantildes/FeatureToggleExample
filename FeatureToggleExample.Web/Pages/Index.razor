@@ -1,0 +1,113 @@
+﻿@page "/"
+
+@using FeatureToggleExample.Web.Features
+@inject BonjourHiFeatureToggle feature;
+
+
+@if (!string.IsNullOrWhiteSpace(_errorText))
+{
+    <div class="form-group">
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-danger" role="alert">
+                    @_errorText
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (feature.FeatureEnabled)
+{
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="bonjourhiOrBonjour" id="bonjourhi"
+                   value="@BonjourHiCheckedValue"
+                   checked="@_bonjourHiChecked" @onchange="OnBonjourHiChecked">
+            <label class="form-check-label" for="bonjourhi">
+                @BonjourHiText
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="bonjourhiOrBonjour" id="bonjour" value=""
+                   checked="@(!_bonjourHiChecked)" @onchange="OnBonjourHiChecked">
+            <label class="form-check-label" for="bonjour">
+                @BonjourText
+            </label>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="alert alert-primary">Feature Bonjour-Hi is not enabled</div>
+}
+
+<div class="form-group">
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="Prénom" @bind="_name">
+        </div>
+        <div class="col">
+            <button class="btn btn-primary" @onclick="HandleGreeting">@_buttonText</button>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @if (!string.IsNullOrWhiteSpace(_helloGreeting))
+    {
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-primary" role="alert">
+                    @_helloGreeting
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+
+    private string _name = "";
+    private string _helloGreeting;
+    private string _errorText = "";
+    private bool _bonjourHiChecked = true;
+    private string _buttonText = "";
+    private const string BonjourHiCheckedValue = "true";
+    private const string BonjourHiText = "Bonjour-Hi";
+    private const string BonjourText = "Bonjour";
+
+
+    protected override void OnInitialized()
+    {
+        _bonjourHiChecked = true;
+        ChangeButtonText();
+    }
+
+    private void HandleGreeting()
+    {
+        if (string.IsNullOrWhiteSpace(_name))
+        {
+            _errorText = "Tapez un prénom, s'il vous plaît!";
+        }
+        else
+        {
+            var greeting = _bonjourHiChecked ? BonjourHiText : BonjourText;
+            _helloGreeting = $"{greeting}, {_name}!";
+            _errorText = "";
+        }
+    }
+
+    private void OnBonjourHiChecked(ChangeEventArgs args)
+    {
+        _bonjourHiChecked = BonjourHiCheckedValue.Equals(args.Value);
+        ChangeButtonText();
+    }
+
+    private void ChangeButtonText()
+    {
+        var text = _bonjourHiChecked ? BonjourHiText : BonjourText;
+        _buttonText = $"Dire {text}";
+    }
+
+}
